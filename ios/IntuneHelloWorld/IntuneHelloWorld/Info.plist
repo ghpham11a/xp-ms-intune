@@ -16,27 +16,56 @@
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
 	<string>$(MARKETING_VERSION)</string>
-	<key>CFBundleVersion</key>
-	<string>$(CURRENT_PROJECT_VERSION)</string>
-	<key>LSRequiresIPhoneOS</key>
-	<true/>
-	<key>UIApplicationSceneManifest</key>
-	<dict>
-		<key>UIApplicationSupportsMultipleScenes</key>
-		<false/>
-		<key>UISceneConfigurations</key>
+	<key>CFBundleURLTypes</key>
+	<array>
 		<dict>
-			<key>UIWindowSceneSessionRoleApplication</key>
+			<key>CFBundleURLSchemes</key>
 			<array>
-				<dict>
-					<key>UISceneConfigurationName</key>
-					<string>Default Configuration</string>
-					<key>UISceneDelegateClassName</key>
-					<string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
-				</dict>
+				<string>msauth.com.example.intunehelloworld</string>
 			</array>
 		</dict>
+	</array>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>IntuneMAMSettings</key>
+	<dict>
+		<key>ADALAuthority</key>
+		<string>https://login.microsoftonline.com/c3627fbe-7111-473e-94d5-a6eca0078e8f</string>
+		<key>ADALClientId</key>
+		<string>1c8eead8-5ed1-4ec3-8379-ad02e6854878</string>
+		<key>ADALRedirectUri</key>
+		<string>msauth.com.example.intunehelloworld://auth</string>
+		<key>MAMLogOverrideEnabled</key>
+		<true/>
 	</dict>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>msauthv2</string>
+		<string>msauth</string>
+		<string>msauthv3</string>
+		<string>https-intunemam</string>
+		<string>http-intunemam</string>
+		<string>microsoft-edge-https</string>
+		<string>microsoft-edge-https-intunemam</string>
+		<string>microsoft-edge-http</string>
+		<string>microsoft-edge-http-intunemam</string>
+		<string>ms-outlook</string>
+		<string>ms-outlook-intunemam</string>
+		<string>companyportal</string>
+		<string>smart-ns</string>
+		<string>zips</string>
+		<string>lacoonsecurity</string>
+		<string>wandera</string>
+		<string>lookoutwork-ase</string>
+		<string>skycure</string>
+		<string>betteractiveshield</string>
+		<string>smsec</string>
+		<string>mvisionmobile</string>
+		<string>scmx</string>
+		<string>intunemam-mtd</string>
+	</array>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchScreen</key>
@@ -53,32 +82,6 @@
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>IntuneMAMSettings</key>
-	<dict>
-		<key>ADALClientId</key>
-		<string>1c8eead8-5ed1-4ec3-8379-ad02e6854878</string>
-		<key>ADALAuthority</key>
-		<string>https://login.microsoftonline.com/c3627fbe-7111-473e-94d5-a6eca0078e8f</string>
-		<key>ADALRedirectUri</key>
-		<string>msauth.com.example.intunehelloworld://auth</string>
-		<key>MAMLogOverrideEnabled</key>
-		<true/>
-	</dict>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>msauth.com.example.intunehelloworld</string>
-			</array>
-		</dict>
-	</array>
-	<key>LSApplicationQueriesSchemes</key>
-	<array>
-		<string>msauth</string>
-		<string>msauthv2</string>
-		<string>msauthv3</string>
 	</array>
 </dict>
 </plist>

@@ -18,14 +18,20 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         
-        // Set yourself as the enrollment delegate
-        // This gives you callbacks when enrollment succeeds/fails
-        // IntuneMAMEnrollmentManager.instance().delegate = self
-        // Register policy delegate (selective wipe, restart, etc.)
+        IntuneMAMEnrollmentManager.instance().delegate = enrollmentAndPolicyDelegate
         IntuneMAMPolicyManager.instance().delegate = enrollmentAndPolicyDelegate
-        
+
         print("✅ Intune MAM SDK initialized")
         return true
+    }
+
+    func application(
+        _ app: UIApplication,
+        open url: URL,
+        options: [UIApplication.OpenURLOptionsKey: Any] = [:]
+    ) -> Bool {
+        let sourceApp = options[.sourceApplication] as? String
+        return MSALPublicClientApplication.handleMSALResponse(url, sourceApplication: sourceApp)
     }
 }
 
