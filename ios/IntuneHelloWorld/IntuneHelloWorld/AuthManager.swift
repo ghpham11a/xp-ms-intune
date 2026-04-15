@@ -33,6 +33,7 @@ final class AuthManager {
     var enrollmentStatus = "Not started"
     var isLoading = false
     var errorMessage: String?
+    var mamAppConfig: [(key: String, value: String)] = []
 
     private var msalApp: MSALPublicClientApplication?
 
@@ -43,6 +44,50 @@ final class AuthManager {
     init() {
         setupMSAL()
         observeEnrollmentNotifications()
+        observeAppConfigNotifications()
+        restoreEnrolledState()
+    }
+
+    private func restoreEnrolledState() {
+        guard let enrolledId = IntuneMAMEnrollmentManager.instance().enrolledAccountId(),
+              !enrolledId.isEmpty else { return }
+        let cached = (try? msalApp?.allAccounts())?.first
+        userUPN = cached?.username ?? enrolledId
+        isEnrolled = true
+        enrollmentStatus = "✅ Enrolled — policies active"
+        refreshMAMAppConfig()
+        print("♻️ Restored enrolled state for \(enrolledId)")
+    }
+
+    private func refreshMAMAppConfig() {
+        guard let accountId = IntuneMAMEnrollmentManager.instance().enrolledAccountId() else {
+            mamAppConfig = []
+            return
+        }
+        let config = IntuneMAMAppConfigManager.instance().appConfig(forAccountId: accountId)
+        let dicts = config.fullData ?? []
+
+        var merged: [String: [String]] = [:]
+        for dict in dicts {
+            for (rawKey, rawValue) in dict {
+                guard let key = rawKey as? String else { continue }
+                merged[key, default: []].append(String(describing: rawValue))
+            }
+        }
+        mamAppConfig = merged.keys.sorted().map { key in
+            (key, merged[key]!.joined(separator: ", "))
+        }
+        print("🧩 MAM app config refreshed — \(mamAppConfig.count) key(s)")
+    }
+
+    private func observeAppConfigNotifications() {
+        let name = Notification.Name("IntuneMAMAppConfigDidChangeNotification")
+        Task { [weak self] in
+            for await _ in NotificationCenter.default.notifications(named: name) {
+                guard let self else { return }
+                self.refreshMAMAppConfig()
+            }
+        }
     }
 
     // MARK: - Setup
@@ -85,10 +130,20 @@ final class AuthManager {
             let objectId = account.homeAccountId?.objectId ?? ""
             let fullId = account.identifier ?? ""
             userUPN = upn
-            enrollmentStatus = "Enrolling with Intune..."
             print("👤 signed in — upn=\(upn) objectId=\(objectId) fullId=\(fullId)")
             let cachedAccounts = (try? msalApp?.allAccounts()) ?? []
             print("🔑 MSAL cache holds \(cachedAccounts.count) account(s): \(cachedAccounts.map { $0.username ?? "?" })")
+
+            if let enrolledId = IntuneMAMEnrollmentManager.instance().enrolledAccountId(),
+               !enrolledId.isEmpty {
+                isEnrolled = true
+                enrollmentStatus = "✅ Enrolled — policies active"
+                refreshMAMAppConfig()
+                print("♻️ Already enrolled as \(enrolledId) — skipping enroll call")
+                return
+            }
+
+            enrollmentStatus = "Enrolling with Intune..."
             IntuneMAMEnrollmentManager.instance().registerAndEnrollAccountId(objectId)
         } catch {
             errorMessage = error.localizedDescription
@@ -98,16 +153,20 @@ final class AuthManager {
 
     private func acquireToken() async throws -> MSALAccount {
         guard let msalApp else { throw AuthError.msalNotConfigured }
-        let rootVC = try presentingViewController()
 
-        let params = MSALInteractiveTokenParameters(
-            scopes: ["user.read"],
-            webviewParameters: MSALWebviewParameters(authPresentationViewController: rootVC)
-        )
-        params.promptType = .selectAccount
+        if let cached = (try? msalApp.allAccounts())?.first,
+           let result = try? await acquireTokenSilent(app: msalApp, account: cached) {
+            print("🔓 silent token acquired for \(cached.username ?? "?")")
+            return result.account
+        }
 
-        let result: MSALResult = try await withCheckedThrowingContinuation { continuation in
-            msalApp.acquireToken(with: params) { result, error in
+        return try await acquireTokenInteractive(app: msalApp).account
+    }
+
+    private func acquireTokenSilent(app: MSALPublicClientApplication, account: MSALAccount) async throws -> MSALResult {
+        let params = MSALSilentTokenParameters(scopes: ["user.read"], account: account)
+        return try await withCheckedThrowingContinuation { continuation in
+            app.acquireTokenSilent(with: params) { result, error in
                 if let error {
                     continuation.resume(throwing: error)
                 } else if let result {
@@ -117,7 +176,27 @@ final class AuthManager {
                 }
             }
         }
-        return result.account
+    }
+
+    private func acquireTokenInteractive(app: MSALPublicClientApplication) async throws -> MSALResult {
+        let rootVC = try presentingViewController()
+        let params = MSALInteractiveTokenParameters(
+            scopes: ["user.read"],
+            webviewParameters: MSALWebviewParameters(authPresentationViewController: rootVC)
+        )
+        params.promptType = .selectAccount
+
+        return try await withCheckedThrowingContinuation { continuation in
+            app.acquireToken(with: params) { result, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else if let result {
+                    continuation.resume(returning: result)
+                } else {
+                    continuation.resume(throwing: AuthError.missingResult)
+                }
+            }
+        }
     }
 
     // MARK: - Sign Out
@@ -150,6 +229,7 @@ final class AuthManager {
                 guard let self else { return }
                 self.isEnrolled = true
                 self.enrollmentStatus = "✅ Enrolled — policies active"
+                self.refreshMAMAppConfig()
             }
         }
         Task { [weak self] in
@@ -189,6 +269,7 @@ final class AuthManager {
             (key, String(describing: raw[key] ?? "nil"))
         }
     }
+
 }
 
 extension Bundle {

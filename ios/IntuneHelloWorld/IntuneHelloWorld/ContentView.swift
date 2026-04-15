@@ -19,7 +19,7 @@ struct ContentView: View {
                 StatusCard(auth: auth)
 
                 if auth.isEnrolled {
-                    ManagedConfigCard(entries: auth.managedConfig)
+                    ManagedConfigCard(entries: auth.mamAppConfig)
                 }
 
                 Spacer()
@@ -114,15 +114,21 @@ struct ManagedConfigCard: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             } else {
-                ForEach(entries, id: \.key) { entry in
-                    HStack {
+                ForEach(Array(entries.enumerated()), id: \.element.key) { index, entry in
+                    VStack(alignment: .leading, spacing: 4) {
                         Text(entry.key)
+                            .font(.subheadline)
                             .foregroundStyle(.secondary)
-                        Spacer()
                         Text(entry.value)
+                            .font(.subheadline)
                             .fontWeight(.medium)
+                            .textSelection(.enabled)
                     }
-                    .font(.subheadline)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                    if index < entries.count - 1 {
+                        Divider()
+                    }
                 }
             }
         }
