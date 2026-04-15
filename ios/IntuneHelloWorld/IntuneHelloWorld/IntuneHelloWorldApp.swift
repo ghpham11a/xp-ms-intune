@@ -7,7 +7,6 @@
 
 import SwiftUI
 import IntuneMAMSwift
-import MSAL
 
 @main
 struct IntuneHelloWorldApp: App {
@@ -17,9 +16,6 @@ struct IntuneHelloWorldApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .onOpenURL { url in
-                    MSALPublicClientApplication.handleMSALResponse(url, sourceApplication: nil)
-                }
         }
     }
 }
