@@ -1,0 +1,16 @@
+{
+  "client_id": "1c8eead8-5ed1-4ec3-8379-ad02e6854878",
+  "authorization_user_agent": "DEFAULT",
+  "redirect_uri": "msauth://com.example.androidintuneapp/cobDPoK66N9FqyxsbxRS%2F5q8zq8%3D",
+  "account_mode": "SINGLE",
+  "broker_redirect_uri_registered": true,
+  "authorities": [
+    {
+      "type": "AAD",
+      "audience": {
+        "type": "AzureADMyOrg",
+        "tenant_id": "c3627fbe-7111-473e-94d5-a6eca0078e8f"
+      }
+    }
+  ]
+}

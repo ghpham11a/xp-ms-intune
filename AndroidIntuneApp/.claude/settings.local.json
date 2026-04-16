@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/antho/AppData/Local/Android/**)",
+      "Read(//c/Program Files/Java/**)",
+      "Read(//c/Program Files/**)"
+    ]
+  }
+}

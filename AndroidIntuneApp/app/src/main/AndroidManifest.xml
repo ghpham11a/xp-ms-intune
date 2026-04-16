@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Intune requires the Company Portal app; these package queries let our
+         app resolve and launch it when the SDK needs to redirect there. -->
+    <queries>
+        <package android:name="com.microsoft.windowsintune.companyportal" />
+        <package android:name="com.azure.authenticator" />
+    </queries>
+
+    <application
+        android:name="com.microsoft.intune.mam.client.app.MAMApplication"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.AndroidIntuneApp">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.AndroidIntuneApp">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- MSAL redirect handler. The data scheme/host/path are supplied via
+             manifest placeholders in app/build.gradle.kts so the base64 signing
+             cert hash is declared in exactly one place. -->
+        <activity
+            android:name="com.microsoft.identity.client.BrowserTabActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="${msalRedirectScheme}"
+                    android:host="${msalRedirectHost}"
+                    android:path="${msalRedirectPath}" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
