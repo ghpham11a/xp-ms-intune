@@ -6,7 +6,8 @@
       "WebFetch(domain:search.maven.org)",
       "WebFetch(domain:repo1.maven.org)",
       "Bash(gh api:*)",
-      "WebFetch(domain:api.github.com)"
+      "WebFetch(domain:api.github.com)",
+      "Bash(plutil -lint IOSIntuneApp.xcodeproj/project.pbxproj)"
     ]
   }
 }
